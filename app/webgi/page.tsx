@@ -1,5 +1,11 @@
+'use client';
+
 import React from 'react';
-import ThreeViewer from './components/ThreeViewer';
+import dynamic from 'next/dynamic';
+
+const ThreeViewer = dynamic(() => import('./components/ThreeViewer'), {
+  ssr: false,
+});
 
 const WebGI = () => {
   return (
