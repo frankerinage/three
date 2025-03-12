@@ -27,26 +27,3 @@ http://localhost:3030/webgi
 ```
 
 For more details, refer to the [WebGI Documentation](https://webgi.xyz/docs).
-
-### Known Issues & Troubleshooting
-
-This project has several TypeScript errors in VS Code and throws the following runtime error while running the components:
-
-```
-ReferenceError: self is not defined
-```
-
-We tried following these WebGI documentation pages, but the errors persisted:
-
-- [Viewer API](https://webgi.xyz/docs/manual/viewer-api)
-- [Installation Guide](https://webgi.xyz/docs/installation)
-
-#### Error Logs
-
-For more details on errors, check the log file:
-
-```
-/logs/errors.log
-```
-
-Troubleshooting and finding a solution for the errors is required.

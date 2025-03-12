@@ -3,13 +3,21 @@
 import React, { useEffect, useRef } from 'react';
 
 import {
+  addBasePlugins,
   AssetManagerPlugin,
   DiamondPlugin,
-  TonemapPlugin,
   ViewerApp,
 } from 'webgi';
 
-const ThreeViewer = () => {
+interface ThreeViewerProps {
+  model: string;
+  env?: string;
+}
+
+const ThreeViewer: React.FC<ThreeViewerProps> = ({
+  model,
+  env = 'https://demo-assets.pixotronics.com/pixo/hdr/gem_2.hdr',
+}) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
@@ -21,33 +29,14 @@ const ThreeViewer = () => {
       // create a viewer for the canvas
       const viewer = new ViewerApp({ canvas });
 
+      viewer.renderer.renderScale = 2;
+      viewer.renderer.refreshPasses();
+
       // add plugins
       const manager = await viewer.addPlugin(AssetManagerPlugin);
-      await viewer.addPlugin(TonemapPlugin);
+      await addBasePlugins(viewer);
 
       const diamondPlugin = await viewer.addPlugin(DiamondPlugin);
-
-      // const diamondEnvMap = await viewer
-      //   ?.getManager()
-      //   ?.importer.importSinglePath<ITexture>(
-      //     'https://demo-assets.pixotronics.com/pixo/hdr/gem_2.hdr'
-      //   );
-      // diamondPlugin.envMap = diamondEnvMap;
-
-      // const dMat = await viewer
-      //   .getManager()
-      //   .importer.importSinglePath('http://localhost:3030/3d/material.dmat');
-
-      // Find the mesh
-      // const mesh = viewer.scene;
-
-      // Prepare the meshes where the material needs to be applied.
-      // viewer
-      //   .getPlugin(DiamondPlugin)
-      //   .prepareDiamondMesh(mesh, { cacheKey: 'd1', normalMapRes: 512 });
-
-      // // Assign the material
-      // mesh.setMaterial(dMat);
 
       diamondPlugin.envMapRotation = Math.PI / 2.0;
 
@@ -56,13 +45,9 @@ const ThreeViewer = () => {
       // Load the assets at once.
       await Promise.all([
         viewer.scene.setEnvironment(
-          await manager.importer!.importSingle({
-            path: 'https://demo-assets.pixotronics.com/pixo/hdr/gem_2.hdr',
-          })
+          await manager.importer!.importSingle({ path: env })
         ),
-        manager.addAsset({
-          path: 'http://localhost:3030/3d/diamond-ring.glb',
-        }),
+        manager.addAsset({ path: model }),
       ]);
     };
 
@@ -71,7 +56,10 @@ const ThreeViewer = () => {
 
   return (
     <div className="h-screen flex items-center justify-center p-8">
-      <canvas ref={canvasRef} className="w-full md:w-md aspect-square"></canvas>
+      <canvas
+        ref={canvasRef}
+        className="w-full md:w-2xl aspect-square"
+      ></canvas>
     </div>
   );
 };

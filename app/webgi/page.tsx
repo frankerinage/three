@@ -2,6 +2,7 @@
 
 import React from 'react';
 import dynamic from 'next/dynamic';
+import { get3DUrl } from '../helpers';
 
 const ThreeViewer = dynamic(() => import('./components/ThreeViewer'), {
   ssr: false,
@@ -10,7 +11,7 @@ const ThreeViewer = dynamic(() => import('./components/ThreeViewer'), {
 const WebGI = () => {
   return (
     <div>
-      <ThreeViewer />
+      <ThreeViewer model={get3DUrl('baguette-tiger-ring.glb')} />
     </div>
   );
 };
