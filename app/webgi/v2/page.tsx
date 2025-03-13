@@ -11,7 +11,7 @@ const ThreeViewer = dynamic(() => import('./components/ThreeViewer'), {
 const WebGIV2 = () => {
   return (
     <div>
-      <ThreeViewer model={get3DUrl('/baguette-tiger-ring.glb')} />
+      <ThreeViewer model={get3DUrl('/trillion-sapphire.glb')} />
     </div>
   );
 };

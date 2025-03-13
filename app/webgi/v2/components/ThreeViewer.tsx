@@ -6,6 +6,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { addBasePlugins, DiamondPlugin, GroundPlugin, ViewerApp } from 'webgi';
 import MetalButtons from './MetalButtons';
 import { get3DUrl } from '../../../helpers';
+import ModelButtons from './ModelButtons';
 
 interface ThreeViewerProps {
   model: string;
@@ -14,6 +15,7 @@ interface ThreeViewerProps {
 const ThreeViewer: React.FC<ThreeViewerProps> = ({ model }) => {
   const [currentColor, setCurrentColor] = useState('#aa947e');
   const modelRef = useRef<{ modelObject: THREE.Object3D } | null>(null);
+  const [currentModel, setCurrentModel] = useState(model);
   const viewerRef = useRef<ViewerApp | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -60,7 +62,7 @@ const ThreeViewer: React.FC<ThreeViewerProps> = ({ model }) => {
         return model;
       }
 
-      const myModel = await loadModel(model);
+      const myModel = await loadModel(currentModel);
       modelRef.current = myModel;
 
       // Load scene settings
@@ -107,7 +109,7 @@ const ThreeViewer: React.FC<ThreeViewerProps> = ({ model }) => {
     };
 
     runViewer();
-  }, []);
+  }, [currentModel]);
 
   useEffect(() => {
     if (modelRef.current) {
@@ -133,11 +135,12 @@ const ThreeViewer: React.FC<ThreeViewerProps> = ({ model }) => {
 
   return (
     <div className="h-screen flex items-center flex-col gap-8 justify-center p-8">
+      <ModelButtons setCurrentModel={setCurrentModel} />
       <MetalButtons setCurrentColor={setCurrentColor} />
 
       <canvas
         ref={canvasRef}
-        className="w-full md:w-2xl aspect-square"
+        className="w-full md:w-2xl aspect-square border border-gray-100"
       ></canvas>
     </div>
   );

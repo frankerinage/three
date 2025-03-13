@@ -23,7 +23,7 @@ npm run dev
 Once the server is running, visit:
 
 ```
-http://localhost:3030/webgi
+http://localhost:3030
 ```
 
 For more details, refer to the [WebGI Documentation](https://webgi.xyz/docs).
