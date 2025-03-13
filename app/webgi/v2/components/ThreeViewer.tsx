@@ -123,7 +123,7 @@ const ThreeViewer: React.FC<ThreeViewerProps> = ({ model }) => {
     };
 
     runViewer();
-  }, [currentModel, get3DUrl, getAssetUrl]);
+  }, []);
 
   useEffect(() => {
     if (modelRef.current) {
