@@ -1,5 +1,6 @@
 import React from 'react';
-import { get3DUrl } from '../../../helpers';
+
+import Helpers from '../../../helpers';
 
 interface ModelButtonsProps {
   setCurrentModel: (color: string) => void;
@@ -30,10 +31,10 @@ export default ModelButtons;
 const models = [
   {
     name: 'Trillion Sapphire',
-    url: get3DUrl('/trillion-sapphire.glb'),
+    url: Helpers.get3DUrl('/trillion-sapphire.glb'),
   },
   {
     name: 'Baguette Tiger',
-    url: get3DUrl('/baguette-tiger-ring.glb'),
+    url: Helpers.get3DUrl('/baguette-tiger-ring.glb'),
   },
 ];

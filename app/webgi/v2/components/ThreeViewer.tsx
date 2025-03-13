@@ -3,10 +3,16 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
-import { addBasePlugins, DiamondPlugin, GroundPlugin, ViewerApp } from 'webgi';
+import {
+  addBasePlugins,
+  DiamondPlugin,
+  GroundPlugin,
+  LoadingScreenPlugin,
+  ViewerApp,
+} from 'webgi';
 import MetalButtons from './MetalButtons';
-import { get3DUrl } from '../../../helpers';
 import ModelButtons from './ModelButtons';
+import Helpers from '../../../helpers';
 
 interface ThreeViewerProps {
   model: string;
@@ -18,6 +24,7 @@ const ThreeViewer: React.FC<ThreeViewerProps> = ({ model }) => {
   const [currentModel, setCurrentModel] = useState(model);
   const viewerRef = useRef<ViewerApp | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const { get3DUrl, getAssetUrl } = Helpers;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -47,11 +54,19 @@ const ThreeViewer: React.FC<ThreeViewerProps> = ({ model }) => {
 
       viewer.renderer.refreshPipeline();
 
-      // this wont rebake the shadows whenever the model changes.
-      const ground = viewer.getPlugin(GroundPlugin);
-      if (ground) ground.autoBakeShadows = false;
-
       viewer.enabled = false;
+
+      const loading = await viewer.getOrAddPlugin(LoadingScreenPlugin);
+      loading.minimizeOnSceneObjectLoad = true;
+      loading.showFileNames = false;
+      loading.logoImage = getAssetUrl('/logo.png');
+      loading.showProcessStates = false;
+
+      loading.loadingTextHeader = 'Loading..';
+      loading.showFileNames = false;
+      loading.backgroundOpacity = 0.5;
+      loading.background = '#ffffff';
+      loading.textColor = '#222222';
 
       // Loads a 3d model, without any auto scaling, and centering. This is important, since shanks and heads are prepared in a way, so that the relative positions are correct.
       async function loadModel(url: string) {
@@ -68,12 +83,11 @@ const ThreeViewer: React.FC<ThreeViewerProps> = ({ model }) => {
       // Load scene settings
       await viewer.load(get3DUrl('configuration.vjson'));
 
-      // Finally enable the viewer
-      viewer.enabled = true;
-      viewer.fitToView();
+      await bakeShadows(viewer);
 
-      // manually bake the shadows once.
-      if (ground) ground.bakeShadows(); // required only if autoBakeShadows is false
+      // Finally enable the viewer
+      await viewer.fitToView();
+      viewer.enabled = true;
 
       // Ensure controls are active
       const camera = viewer.scene.activeCamera;
@@ -109,7 +123,7 @@ const ThreeViewer: React.FC<ThreeViewerProps> = ({ model }) => {
     };
 
     runViewer();
-  }, [currentModel]);
+  }, [currentModel, get3DUrl, getAssetUrl]);
 
   useEffect(() => {
     if (modelRef.current) {
@@ -147,3 +161,22 @@ const ThreeViewer: React.FC<ThreeViewerProps> = ({ model }) => {
 };
 
 export default ThreeViewer;
+
+export async function bakeShadows(viewer: ViewerApp) {
+  const ground = viewer.getPluginByType<GroundPlugin>('Ground');
+  if (ground && ground.visible) {
+    if (ground.shadowBaker)
+      ground.shadowBaker.maxFrameNumber = Math.min(
+        ground.shadowBaker.maxFrameNumber,
+        100
+      );
+    ground.autoBakeShadows = false;
+    const promise = new Promise<void>((res) => {
+      if (!ground.shadowBaker || !ground.bakedShadows) res();
+      else ground.shadowBaker.addEventListener('shadowBaked', () => res());
+      viewer?.setDirty();
+    });
+    ground.bakeShadows();
+    await promise;
+  }
+}
